@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.SolveMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Solve">
+        <!--@mbg.generated-->
+        <!--@Table dd_solve-->
+        <id column="solve_id" jdbcType="INTEGER" property="solveId"/>
+        <result column="problem_id" jdbcType="INTEGER" property="problemId"/>
+        <result column="solve_time" jdbcType="TIMESTAMP" property="solveTime"/>
+        <result column="solve_content" jdbcType="LONGVARCHAR" property="solveContent"/>
+        <result column="solve_user_id" jdbcType="INTEGER" property="solveUserId"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        solve_id, problem_id, solve_time, solve_content, solve_user_id, flag
+    </sql>
+
+    <select id="findSolvesByProblemId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dd_solve
+        where flag = 1
+        and problem_id = #{problemId,jdbcType=INTEGER}
+        order by solve_id desc;
+    </select>
+</mapper>

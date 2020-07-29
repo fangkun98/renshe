@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.UserChatMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.UserChat">
+    <!--@mbg.generated-->
+    <!--@Table dd_user_chat-->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="chat_id" jdbcType="VARCHAR" property="chatId" />
+    <result column="street_id" jdbcType="INTEGER" property="streetId" />
+    <result column="grid_id" jdbcType="INTEGER" property="gridId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_id, chat_id, street_id, grid_id
+  </sql>
+</mapper>

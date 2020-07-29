@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.UserInfoSwapMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.UserInfoSwap">
+    <!--@mbg.generated-->
+    <!--@Table sys_user_info_swap-->
+    <id column="swap_id" jdbcType="INTEGER" property="swapId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="company_name" jdbcType="VARCHAR" property="companyName" />
+    <result column="credit_code" jdbcType="VARCHAR" property="creditCode" />
+    <result column="unit_no" jdbcType="VARCHAR" property="unitNo" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="id_card" jdbcType="VARCHAR" property="idCard" />
+    <result column="position" jdbcType="VARCHAR" property="position" />
+    <result column="fixed_phone" jdbcType="VARCHAR" property="fixedPhone" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="dd_user_id" jdbcType="VARCHAR" property="ddUserId" />
+    <result column="organize_code" jdbcType="VARCHAR" property="organizeCode" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+    <result column="street" jdbcType="VARCHAR" property="street" />
+    <result column="position_x" jdbcType="VARCHAR" property="positionX" />
+    <result column="position_y" jdbcType="VARCHAR" property="positionY" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="area_id" jdbcType="INTEGER" property="areaId" />
+    <result column="street_id" jdbcType="INTEGER" property="streetId" />
+    <result column="es_id" jdbcType="INTEGER" property="esId" />
+    <result column="industry_id" jdbcType="VARCHAR" property="industryId" />
+    <result column="is_pass" jdbcType="INTEGER" property="isPass" />
+    <result column="select_chat_id" jdbcType="VARCHAR" property="selectChatId" />
+    <result column="before_street_id" jdbcType="INTEGER" property="beforeStreetId" />
+    <result column="chat_name" jdbcType="VARCHAR" property="chatName" />
+    <result column="current_chat_name" jdbcType="VARCHAR" property="currentChatName" />
+    <result column="application_time" jdbcType="TIMESTAMP" property="applicationTime" />
+    <result column="admin_remark" jdbcType="VARCHAR" property="adminRemark" />
+    <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    swap_id, user_id, reason, `name`, company_name, credit_code, unit_no, `password`, 
+    id_card, `position`, fixed_phone, mobile, remark, email, create_time, dd_user_id, 
+    organize_code, city, area, street, position_x, position_y, address, area_id, street_id, 
+    es_id, industry_id, is_pass, select_chat_id, before_street_id, chat_name, current_chat_name, 
+    application_time, admin_remark, admin_name
+  </sql>
+</mapper>

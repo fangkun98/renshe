@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.NoticeMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Notice">
+        <!--@mbg.generated-->
+        <!--@Table sys_notice-->
+        <id column="notice_id" jdbcType="INTEGER" property="noticeId"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="type_class" jdbcType="VARCHAR" property="typeClass"/>
+        <result column="msg_type" jdbcType="INTEGER" property="msgType"/>
+        <result column="msg_content" jdbcType="VARCHAR" property="msgContent"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="likes" jdbcType="INTEGER" property="likes"/>
+        <result column="reading_number" jdbcType="INTEGER" property="readingNumber"/>
+        <result column="create_user_id" jdbcType="INTEGER" property="createUserId"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="is_chat_msg" jdbcType="INTEGER" property="isChatMsg"/>
+        <result column="resend_time" jdbcType="TIMESTAMP" property="resendTime"/>
+        <result column="is_resend" jdbcType="INTEGER" property="isResend"/>
+        <result column="chat_or_user" jdbcType="INTEGER" property="chatOrUser"/>
+        <result column="is_all_read" jdbcType="INTEGER" property="isAllRead"/>
+        <result column="save_or_save_send" jdbcType="INTEGER" property="saveOrSaveSend"/>
+        <result column="notice_cancel" jdbcType="INTEGER" property="noticeCancel"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        notice_id, `type`, type_class, msg_type, msg_content, content, create_time, flag,
+        title, likes, reading_number, create_user_id, url, is_chat_msg, resend_time, is_resend,
+        chat_or_user, is_all_read, save_or_save_send, notice_cancel
+    </sql>
+
+
+    <select id="findNoticeByType" resultMap="BaseResultMap">
+        SELECT *
+                FROM (
+                SELECT n.*
+                FROM (SELECT * FROM sys_notice WHERE flag = 1 AND type = #{type,jdbcType=INTEGER}) n
+                JOIN (SELECT notice_id
+                      FROM sys_notice_area
+                WHERE user_id = #{userId,jdbcType=INTEGER}
+                   OR grid_id
+        <if test="gridList != null and gridList.size() != 0">
+            <foreach close=")" collection="gridList" item="gridId" open="IN (" separator=",">
+                #{gridId,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        ) na ON na.notice_id = n.notice_id
+                UNION
+                SELECT n.*
+                FROM (SELECT * FROM sys_notice WHERE flag = 1 AND type = #{type,jdbcType=INTEGER}) n
+                             JOIN (SELECT notice_id FROM sys_notice_area WHERE is_all = 1) na
+                        ON na.notice_id = n.notice_id
+                ) no
+                ORDER BY no.create_time DESC
+    </select>
+
+
+    <select id="getMessageHistory2DD" resultMap="BaseResultMap">
+        select notice_id, title, content, msg_type
+        FROM sys_notice
+
+                where 1 = 1
+        <if test="list != null and list.size() != 0">
+            and notice_id
+            <foreach close=")" collection="list" item="id" open=" IN (" separator=",">
+                #{id,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        AND msg_type = 5
+                or msg_type = 1 AND flag = 1 AND type = 1
+                ORDER BY create_time DESC
+    </select>
+
+    <select id="countNumberOfUnread" resultType="java.lang.Integer">
+        select notice_id
+        from sys_notice
+        where flag = 1
+          and is_chat_msg = 1
+    </select>
+
+
+    <resultMap id="getMessageHistoryMap" type="com.ciyun.renshe.entity.po.NoticePO">
+        <id column="notice_id" jdbcType="INTEGER" property="noticeId"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="msg_type" jdbcType="INTEGER" property="msgType"/>
+        <result column="msg_content" jdbcType="VARCHAR" property="msgContent"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="likes" jdbcType="INTEGER" property="likes"/>
+        <result column="reading_number" jdbcType="INTEGER" property="readingNumber"/>
+        <result column="create_user_id" jdbcType="INTEGER" property="createUserId"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="is_chat_msg" jdbcType="INTEGER" property="isChatMsg"/>
+        <result column="name" jdbcType="VARCHAR" property="createUserName"/>
+        <result column="notice_cancel" jdbcType="INTEGER" property="noticeCancel"/>
+        <!--&amp;amp;amp;amp;lt;collection property="noticeChats" column="notice_id"
+                    select="com.ciyun.renshe.mapper.NoticeChatMapper.findNoticeChatByNoticeId"
+                    ofType="com.ciyun.renshe.entity.NoticeChat"/&amp;amp;amp;amp;gt;-->
+    </resultMap>
+    <select id="getMessageHistory" resultMap="getMessageHistoryMap">
+        select n.notice_id,
+               n.`type`,
+               n.msg_type,
+               n.msg_content,
+               n.content,
+               n.create_time,
+               n.flag,
+               n.title,
+               n.likes,
+               n.reading_number,
+               n.create_user_id,
+               n.url,
+               n.is_chat_msg,
+               n.resend_time,
+               n.is_resend,
+               n.chat_or_user,
+               n.is_all_read,
+               n.notice_cancel,
+               u.name
+        from sys_notice n
+                     LEFT JOIN dd_user u on u.user_id = n.create_user_id
+                where 1 = 1
+        <if test="title != null and title != ''">
+            and n.content like concat('%', #{title,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            and n.create_time <![CDATA[ >= ]]> #{startDate,jdbcType=VARCHAR}
+            and n.create_time <![CDATA[ <= ]]>  #{endDate,jdbcType=VARCHAR}
+        </if>
+        <if test="startDate != null and startDate != '' and endDate == null or endDate == ''">
+            and n.create_time <![CDATA[ >= ]]> #{startDate,jdbcType=VARCHAR}
+        </if>
+        <if test="endDate != null and endDate != '' and endDate == null">
+            and n.create_time <![CDATA[ <= ]]>  #{endDate,jdbcType=VARCHAR}
+        </if>
+        <if test="type != null">
+            and n.type = #{type,jdbcType=INTEGER}
+        </if>
+        and n.flag = 1
+        and n.chat_or_user = #{chatOrUser,jdbcType=INTEGER}
+
+        order by n.create_time desc
+    </select>
+
+
+    <!--&amp;amp;amp;amp;amp;amp;amp;lt;select id="findNoticeByUserId" resultMap="BaseResultMap"&amp;amp;amp;amp;amp;amp;amp;gt;
+        select d from sys_notice where flag = 1
+        &amp;amp;amp;amp;amp;amp;amp;lt;foreach collection="noticeIds" open="and notice_id IN (" item="noticeId" close=")"&amp;amp;amp;amp;amp;amp;amp;gt;
+            #{noticeId,jdbcType=INTEGER}
+        &amp;amp;amp;amp;amp;amp;amp;lt;/foreach&amp;amp;amp;amp;amp;amp;amp;gt;
+        and type = #{type,jdbcType=INTEGER}
+    &amp;amp;amp;amp;amp;amp;amp;lt;/select&amp;amp;amp;amp;amp;amp;amp;gt;-->
+</mapper>

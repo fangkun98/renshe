@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.MessageMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Message">
+    <!--@mbg.generated-->
+    <!--@Table dd_message-->
+    <id column="msg_id" jdbcType="VARCHAR" property="msgId" />
+    <result column="chat_id" jdbcType="VARCHAR" property="chatId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="msg_type" jdbcType="INTEGER" property="msgType" />
+    <result column="content_type" jdbcType="INTEGER" property="contentType" />
+    <result column="mediaId" jdbcType="VARCHAR" property="mediaid" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    msg_id, chat_id, content, create_time, msg_type, content_type, mediaId, flag, file_url, 
+    user_id
+  </sql>
+</mapper>

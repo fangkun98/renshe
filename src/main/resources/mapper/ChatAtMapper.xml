@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.ChatAtMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.ChatAt">
+        <!--@mbg.generated-->
+        <!--@Table dd_chat_at-->
+        <id column="at_id" jdbcType="INTEGER" property="atId"/>
+        <result column="msg_id" jdbcType="VARCHAR" property="msgId"/>
+        <result column="msg_content" jdbcType="LONGVARCHAR" property="msgContent"/>
+        <result column="create_at" jdbcType="VARCHAR" property="createAt"/>
+        <result column="conversation_title" jdbcType="VARCHAR" property="conversationTitle"/>
+        <result column="sender_nick" jdbcType="VARCHAR" property="senderNick"/>
+        <result column="sender_staff_id" jdbcType="VARCHAR" property="senderStaffId"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="record_time" jdbcType="TIMESTAMP" property="recordTime"/>
+        <result column="msg_flag" jdbcType="INTEGER" property="msgFlag"/>
+        <result column="is_close" jdbcType="INTEGER" property="isClose"/>
+        <result column="session_webhook" jdbcType="VARCHAR" property="sessionWebhook"/>
+        <result column="session_webhook_expired_time" jdbcType="VARCHAR" property="sessionWebhookExpiredTime"/>
+        <result column="receiving_user_id" jdbcType="VARCHAR" property="receivingUserId"/>
+        <result column="is_read" jdbcType="INTEGER" property="isRead"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        at_id, msg_id, msg_content, create_at, conversation_title, sender_nick, sender_staff_id,
+        flag, create_time, record_time, msg_flag, is_close, session_webhook, session_webhook_expired_time,
+        receiving_user_id, is_read
+    </sql>
+
+    <resultMap id="findChatAtByUserIdMap" type="com.ciyun.renshe.controller.vo.message.receive.ReturnReceive">
+        <id column="at_id" jdbcType="INTEGER" property="atId"/>
+        <result column="create_at" jdbcType="VARCHAR" property="createAt"/>
+        <result column="conversation_title" jdbcType="VARCHAR" property="conversationTitle"/>
+        <result column="sender_nick" jdbcType="VARCHAR" property="senderNick"/>
+        <result column="sender_staff_id" jdbcType="VARCHAR" property="senderStaffId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="msg_flag" jdbcType="INTEGER" property="msgFlag"/>
+        <result column="session_webhook" jdbcType="VARCHAR" property="sessionWebhook"/>
+        <result column="session_webhook_expired_time" jdbcType="VARCHAR" property="sessionWebhookExpiredTime"/>
+        <result column="receiving_user_id" jdbcType="VARCHAR" property="receivingUserId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="company_name" jdbcType="VARCHAR" property="companyName"/>
+        <result column="msg_id" jdbcType="VARCHAR" property="msgId"/>
+        <result column="is_read" jdbcType="VARCHAR" property="isRead"/>
+        <collection column="at_id" ofType="com.ciyun.renshe.entity.ChatAtRecord" property="msgContent"
+                    select="com.ciyun.renshe.mapper.ChatAtRecordMapper.findChatRecordByChatName"/>
+    </resultMap>
+    <select id="findChatAtByUserId" resultMap="findChatAtByUserIdMap">
+        SELECT ca.*,
+        u.`name`,
+        u.company_name
+        FROM (SELECT
+        <include refid="Base_Column_List"/>
+        FROM dd_chat_at WHERE receiving_user_id = #{adminId,jdbcType=INTEGER} AND is_close = 1 AND flag = 1) ca
+        LEFT JOIN dd_user u ON ca.sender_staff_id = u.dd_user_id
+        -- GROUP BY ca.sender_nick,conversation_title
+        ORDER BY ca.at_id,ca.is_read DESC
+    </select>
+
+
+    <select id="findAllChatAtByUserId" resultMap="findChatAtByUserIdMap">
+        SELECT ca.*,
+        u.`name`,
+        u.company_name
+        FROM (
+            SELECT <include refid="Base_Column_List"/>
+            FROM dd_chat_at WHERE receiving_user_id = #{userId,jdbcType=INTEGER} AND flag = 1) ca
+
+        LEFT JOIN dd_user u ON ca.sender_staff_id = u.dd_user_id
+        -- GROUP BY ca.sender_nick,conversation_title
+        ORDER BY ca.at_id DESC
+    </select>
+
+
+    <select id="chatManagerCount" resultType="java.util.Map">
+
+        SELECT *
+        FROM (SELECT COUNT(*) count1
+              FROM dd_chat_at
+              WHERE record_time IS NOT NULL
+                AND timestampdiff(SECOND, create_time,
+                                  record_time)<![CDATA[ <= ]]> 60) a,
+             (
+                 SELECT COUNT(*) count2
+                 FROM dd_chat_at
+                 WHERE record_time IS NOT NULL
+                   AND timestampdiff(SECOND, create_time, record_time) &gt; 60
+                   AND timestampdiff(SECOND, create_time, record_time)<![CDATA[ <= ]]> 120) b,
+             (SELECT COUNT(*) count3
+              FROM dd_chat_at
+              WHERE record_time IS NOT NULL
+                AND timestampdiff(SECOND, create_time, record_time) &gt; 120
+                AND timestampdiff(SECOND, create_time, record_time)<![CDATA[ <= ]]>240) c,
+             (SELECT COUNT(*) count4
+              FROM dd_chat_at
+              WHERE record_time IS NOT NULL
+                AND timestampdiff(SECOND, create_time, record_time) &gt; 240
+                AND timestampdiff(SECOND, create_time, record_time)<![CDATA[ <= ]]> 360) d,
+             (SELECT COUNT(*) count5
+              FROM dd_chat_at
+              WHERE record_time IS NOT NULL
+                AND timestampdiff(SECOND, create_time, record_time) &gt; 360
+                AND timestampdiff(SECOND, create_time, record_time)<![CDATA[ <= ]]> 480) e,
+             (SELECT COUNT(*) count6
+              FROM dd_chat_at
+              WHERE record_time IS NOT NULL
+                AND timestampdiff(SECOND, create_time, record_time) &gt; 480
+                AND timestampdiff(SECOND, create_time, record_time)<![CDATA[ <= ]]> 600
+             ) f,
+             (SELECT COUNT(*) count7
+              FROM dd_chat_at
+              WHERE record_time IS NOT NULL
+                AND timestampdiff(SECOND, create_time,
+                                  record_time) <![CDATA[< ]]> 600) g
+    </select>
+
+
+    <!--&lt;select id="noReplyMessage" resultType="java.util.Map"&gt;
+        SELECT IFNULL(CAST(
+                              b.j / a.i AS DECIMAL(18, 2)), 0.00)
+                   recodeCount,
+               u.`name`
+        FROM (SELECT IFNULL(COUNT(*), 0.00) i, receiving_user_id
+              FROM dd_chat_at
+              WHERE msg_flag = 2
+              GROUP BY receiving_user_id) a
+                 LEFT JOIN (SELECT IFNULL(COUNT(*), 0.00) j, receiving_user_id
+                            FROM dd_chat_at
+                            WHERE msg_flag = 1
+                            GROUP BY receiving_user_id) b ON a.receiving_user_id = b.receiving_user_id
+                 LEFT JOIN dd_user u ON u.user_id = a.receiving_user_id
+        ORDER BY recodeCount DESC
+    &lt;/select&gt;-->
+
+    <!--&lt;select id="noReplyMessage" resultType="java.util.Map"&gt;
+        SELECT IFNULL(CAST(a.i / b.j AS DECIMAL(18, 2)), 0.00) recodeCount,
+               u.`name`
+        FROM (SELECT IFNULL(COUNT(*), 0.00) i, receiving_user_id
+              FROM dd_chat_at
+              WHERE msg_flag = 1
+              GROUP BY receiving_user_id) a
+                 LEFT JOIN (SELECT IFNULL(COUNT(*), 0.00) j, receiving_user_id FROM dd_chat_at) b
+                           ON a.receiving_user_id = b.receiving_user_id
+                 LEFT JOIN dd_user u ON u.user_id = a.receiving_user_id
+        ORDER BY recodeCount DESC
+    &lt;/select&gt;-->
+    <select id="noReplyMessage" resultType="java.util.Map">
+        SELECT a.i, u.`name`
+        FROM (SELECT COUNT(*) i, receiving_user_id FROM dd_chat_at WHERE msg_flag = 1 GROUP BY receiving_user_id) a
+                 LEFT JOIN dd_user u ON u.user_id = a.receiving_user_id
+    </select>
+
+
+</mapper>

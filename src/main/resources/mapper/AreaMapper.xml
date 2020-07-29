@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.AreaMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Area">
+        <!--@mbg.generated-->
+        <!--@Table sys_area-->
+        <id column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        area_id, `name`
+    </sql>
+
+    <resultMap id="findAllArea" type="com.ciyun.renshe.entity.po.AreaPO">
+        <id column="area_id" jdbcType="INTEGER" property="id"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <collection property="children" column="area_id" ofType="com.ciyun.renshe.entity.po.StreetPO"
+                    select="com.ciyun.renshe.mapper.StreetMapper.findStreetsByAreaId"/>
+    </resultMap>
+    <select id="findAllArea" resultMap="findAllArea">
+        select *
+        from sys_area
+        <where>
+            <if test="areaId != null">
+                area_id = #{areaId,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="findAllAreaInUserMap" type="com.ciyun.renshe.entity.po.AreaUserPO">
+        <id column="area_id" jdbcType="INTEGER" property="id"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <collection property="children" column="area_id" ofType="com.ciyun.renshe.entity.po.StreetUserPO"
+                    select="com.ciyun.renshe.mapper.StreetMapper.findStreetsUserByAreaId"/>
+    </resultMap>
+    <select id="findAllAreaInUser" resultMap="findAllAreaInUserMap">
+        select area_id,name
+        from sys_area
+        <where>
+            <if test="areaIds != null and areaIds.size() != 0">
+                    <foreach collection="areaIds" open=" area_id IN ( " item="areaId" separator="," close=")">
+                        #{areaId,jdbcType=INTEGER}
+                    </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="findAllAreaInfoMap" type="com.ciyun.renshe.entity.po.DingDingAreaPO">
+        <id column="area_id" jdbcType="INTEGER" property="code"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <collection property="sub" column="area_id" ofType="com.ciyun.renshe.entity.po.DingDingStreetPO"
+                    select="com.ciyun.renshe.mapper.StreetMapper.findDingDingStreetsByAreaId"/>
+    </resultMap>
+    <select id="findAllAreaInfo" resultMap="findAllAreaInfoMap">
+        select *
+        from sys_area
+    </select>
+    <select id="findAllAreaByAreaIds" resultMap="findAllArea">
+        select *
+        from sys_area
+        <where>
+            <if test="areaIds != null and areaIds.size() != 0">
+                <foreach collection="areaIds" open="area_id In ( " item="areaId" separator="," close=")">
+                    #{areaId,jdbcType=INTEGER}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="findAreaById" resultMap="BaseResultMap">
+        select *
+        from sys_area
+        where area_id = #{id,jdbcType=INTEGER};
+    </select>
+
+</mapper>

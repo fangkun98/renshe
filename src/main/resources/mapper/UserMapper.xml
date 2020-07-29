@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.User">
+        <!--@mbg.generated-->
+        <!--@Table dd_user-->
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="company_name" jdbcType="VARCHAR" property="companyName"/>
+        <result column="company_remark" jdbcType="VARCHAR" property="companyRemark"/>
+        <result column="credit_code" jdbcType="VARCHAR" property="creditCode"/>
+        <result column="unit_no" jdbcType="VARCHAR" property="unitNo"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="id_card" jdbcType="VARCHAR" property="idCard"/>
+        <result column="position" jdbcType="VARCHAR" property="position"/>
+        <result column="fixed_phone" jdbcType="VARCHAR" property="fixedPhone"/>
+        <result column="dept_name" jdbcType="VARCHAR" property="deptName"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+        <result column="dd_user_id" jdbcType="VARCHAR" property="ddUserId"/>
+        <result column="organize_code" jdbcType="VARCHAR" property="organizeCode"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="area" jdbcType="VARCHAR" property="area"/>
+        <result column="street" jdbcType="VARCHAR" property="street"/>
+        <result column="position_x" jdbcType="VARCHAR" property="positionX"/>
+        <result column="position_y" jdbcType="VARCHAR" property="positionY"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="is_admin" jdbcType="INTEGER" property="isAdmin"/>
+        <result column="is_confirm" jdbcType="INTEGER" property="isConfirm"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="street_id" jdbcType="INTEGER" property="streetId"/>
+        <result column="es_id" jdbcType="INTEGER" property="esId"/>
+        <result column="industry_id" jdbcType="VARCHAR" property="industryId"/>
+        <result column="is_on_line" jdbcType="INTEGER" property="isOnLine"/>
+        <result column="is_inner_user" jdbcType="INTEGER" property="isInnerUser"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        user_id, `name`, company_name,company_remark, credit_code, unit_no, `password`, id_card, `position`,
+        fixed_phone, dept_name, mobile, remark, email, create_time, flag, dd_user_id, organize_code,
+        city, area, street, position_x, position_y, address, is_admin, is_confirm, area_id,
+        street_id, es_id, industry_id, is_on_line, is_inner_user
+    </sql>
+
+    <select id="findUserByUserId" resultType="com.ciyun.renshe.entity.po.UserPO">
+        select user_id, name, mobile, dd_user_id
+        from dd_user
+        where user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <select id="getGrIdChatInfo" resultType="com.ciyun.renshe.entity.User">
+        SELECT u.*
+        FROM (
+        SELECT uc.user_id
+        FROM dd_user_chat uc
+        WHERE uc.chat_id = #{chatId,jdbcType=VARCHAR}
+
+        GROUP BY
+        uc.user_id
+        ) gu
+        LEFT JOIN (SELECT * FROM dd_user WHERE is_confirm = 1 ) u
+        ON u.user_id = gu.user_id
+        WHERE
+        u.user_id IS NOT NULL
+        <if test="name != null and name != ''">
+            and u.`company_name` like concat('%',#{name,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="mobile != null and mobile != ''">
+            and u.mobile = #{mobile,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getGrIdChatInfoCount" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM (
+                 SELECT uc.user_id
+                 FROM dd_user_chat uc
+                          LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                 WHERE uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                   AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                   AND g.flag = 1
+             ) gu
+                 LEFT JOIN dd_user u ON u.user_id = gu.user_id
+    </select>
+
+
+    <select id="findCountUser" resultType="java.lang.Integer">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT count(*)
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id where u.flag = 1
+            </when>
+            <otherwise>
+                select count(*) from dd_user t1
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id=#{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id=#{streetId,jdbcType=VARCHAR}
+                </if>
+            </otherwise>
+        </choose>
+
+    </select>
+    <select id="findCompanyCount" resultType="java.lang.Integer">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT count(*) from (
+                SELECT distinct company_name
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="gridId != null and gridId != ''">
+                    and uc.grid_id = #{gridId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id where u.flag = 1
+                ) a
+            </when>
+            <otherwise>
+                select count(*) from (
+                select distinct company_name from dd_user t1
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id= #{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id= #{streetId,jdbcType=VARCHAR}
+                </if>
+                ) a
+            </otherwise>
+        </choose>
+
+    </select>
+    <select id="findCompanyCountAll" resultType="java.lang.Integer">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT count(*) from (
+                SELECT distinct company_name
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="gridId != null and gridId != ''">
+                    and uc.grid_id = #{gridId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id where u.flag = 1
+                <if test="esId != null and esId != ''">
+                    and u.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and u.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                ) a
+            </when>
+            <otherwise>
+                select count(*) from (
+                select distinct company_name from dd_user t1
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id= #{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id= #{streetId,jdbcType=VARCHAR}
+                </if>
+                <if test="esId != null and esId != ''">
+                    and t1.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and t1.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                ) a
+            </otherwise>
+        </choose>
+
+    </select>
+
+    <select id="findCountUserAll" resultType="java.lang.Integer">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT count(*)
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id where u.flag = 1
+                <if test="esId != null and esId != ''">
+                    and u.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and u.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+            </when>
+            <otherwise>
+                select count(*) from dd_user t1
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id=#{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id=#{streetId,jdbcType=VARCHAR}
+                </if>
+                <if test="esId != null and esId != ''">
+                    and t1.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and t1.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+            </otherwise>
+        </choose>
+
+    </select>
+
+
+    <select id="findCountUserBytime" resultType="map">
+        select COUNT(*) num,a.time from (
+        SELECT *,SUBSTR(create_time,9,2) time
+        FROM dd_user u where u.flag = 1
+        <if test="time != null and time != '' ">
+            and u.create_time like CONCAT('%',#{time,jdbcType=VARCHAR},'%')
+        </if>
+        ) a group by a.time
+    </select>
+
+    <select id="findCountUserByDate" resultType="map">
+        select COUNT(*) num,a.time from (
+        SELECT *,SUBSTR(create_time,12,2) time
+        FROM dd_user u where u.flag = 1
+        <if test="time != null and time != '' ">
+            and u.create_time like CONCAT('%',#{time,jdbcType=VARCHAR},'%')
+        </if>
+        ) a group by a.time
+    </select>
+    <select id="findCompanyAll" resultType="map">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT u.*,e.scale_name esName,es.scale_name industryName
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="gridId != null and gridId != ''">
+                    and uc.grid_id = #{gridId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = u.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = u.industry_id and es.state = 2
+                where u.flag = 1
+                <if test="esId != null and esId != ''">
+                    and u.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and u.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and u.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and u.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and u.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                group by u.company_name order by u.user_id desc
+            </when>
+            <otherwise>
+                SELECT t1.*,e.scale_name esName,es.scale_name industryName from dd_user t1
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = t1.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = t1.industry_id and es.state = 2
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id= #{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id= #{streetId,jdbcType=VARCHAR}
+                </if>
+                <if test="esId != null and esId != ''">
+                    and t1.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and t1.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and t1.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and t1.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and t1.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                group by t1.company_name order by t1.user_id desc
+            </otherwise>
+        </choose>
+
+    </select>
+    <select id="findUserAll" resultType="map">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT u.*,e.scale_name esName,es.scale_name industryName
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="gridId != null and gridId != ''">
+                    and uc.grid_id = #{gridId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = u.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = u.industry_id and es.state = 2
+                where u.flag = 1
+                <if test="esId != null and esId != ''">
+                    and u.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and u.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and u.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and u.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and u.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="peopleName != null and peopleName != '' ">
+                    and u.name like CONCAT('%',#{peopleName,jdbcType=VARCHAR},'%')
+                </if>
+                order by u.user_id desc
+            </when>
+            <otherwise>
+                SELECT t1.*,e.scale_name esName,es.scale_name industryName from dd_user t1
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = t1.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = t1.industry_id and es.state = 2
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id= #{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id= #{streetId,jdbcType=VARCHAR}
+                </if>
+                <if test="esId != null and esId != ''">
+                    and t1.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and t1.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and t1.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and t1.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and t1.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="peopleName != null and peopleName != '' ">
+                    and t1.name like CONCAT('%',#{peopleName,jdbcType=VARCHAR},'%')
+                </if>
+                order by t1.user_id desc
+            </otherwise>
+        </choose>
+
+    </select>
+
+    <resultMap id="findUserByChatIdMap" type="com.ciyun.renshe.entity.po.UserPO">
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="dd_user_id" jdbcType="VARCHAR" property="ddUserId"/>
+    </resultMap>
+    <!--根据网格查询下面所属人员-->
+    <select id="findUserByChatId" resultMap="findUserByChatIdMap">
+        SELECT u.user_id, u.name, u.dd_user_id, u.mobile
+        FROM (SELECT user_id FROM dd_user_chat WHERE chat_id = #{chatId,jdbcType=VARCHAR}) uc
+                 LEFT JOIN dd_user u ON uc.user_id = u.user_id
+    </select>
+
+
+    <select id="findCompanyAllExcel" resultType="com.ciyun.renshe.service.dto.excel.EnterpriseExcelDTO">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT u.*,e.scale_name esName,es.scale_name industryName
+                FROM (
+                    SELECT uc.user_id
+                    FROM dd_user_chat uc
+                    LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                    WHERE 1=1
+                    <if test="gridId != null and gridId != ''">
+                        and uc.grid_id = #{gridId,jdbcType=VARCHAR}
+                    </if>
+                    <if test="chatId != null and chatId != ''">
+                        and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                        AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                    </if>
+                    AND g.flag = 1
+                ) gu
+
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = u.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = u.industry_id and es.state = 2
+                where u.flag = 1
+                <if test="esId != null and esId != ''">
+                    and u.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and u.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and u.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and u.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and u.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                group by u.company_name
+                order by u.user_id desc
+            </when>
+            <otherwise>
+                SELECT t1.*,e.scale_name esName,es.scale_name industryName
+                from dd_user t1
+                LEFT JOIN sys_enterprise_scale e
+                    ON e.es_id = t1.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es
+                    ON es.es_id = t1.industry_id and es.state = 2
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id= #{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id= #{streetId,jdbcType=VARCHAR}
+                </if>
+                <if test="esId != null and esId != ''">
+                    and t1.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and t1.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and t1.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and t1.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and t1.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                group by t1.company_name
+                order by t1.user_id desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findUserAllExcel" resultType="com.ciyun.renshe.service.dto.excel.UserExcelDTO">
+        <choose>
+            <when test="(chatId != null and chatId != '') or (gridId != null and gridId != '')">
+                SELECT u.*,e.scale_name esName,es.scale_name industryName
+                FROM (
+                SELECT uc.user_id
+                FROM dd_user_chat uc
+                LEFT JOIN sys_grid g ON g.chat_id = uc.chat_id
+                WHERE 1=1
+                <if test="gridId != null and gridId != ''">
+                    and uc.grid_id = #{gridId,jdbcType=VARCHAR}
+                </if>
+                <if test="chatId != null and chatId != ''">
+                    and uc.chat_id = #{chatId,jdbcType=VARCHAR}
+                    AND g.chat_id = #{chatId,jdbcType=VARCHAR}
+                </if>
+                AND g.flag = 1
+                ) gu
+                LEFT JOIN dd_user u ON u.user_id = gu.user_id
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = u.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = u.industry_id and es.state = 2
+                where u.flag = 1
+                <if test="esId != null and esId != ''">
+                    and u.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and u.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and u.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and u.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and u.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="peopleName != null and peopleName != '' ">
+                    and u.name like CONCAT('%',#{peopleName,jdbcType=VARCHAR},'%')
+                </if>
+                order by u.user_id desc
+            </when>
+            <otherwise>
+                SELECT t1.*,e.scale_name esName,es.scale_name industryName from dd_user t1
+                LEFT JOIN sys_enterprise_scale e ON e.es_id = t1.es_id and e.state = 1
+                LEFT JOIN sys_enterprise_scale es ON es.es_id = t1.industry_id and es.state = 2
+                where t1.flag = 1
+                <if test="areaId != null and areaId != ''">
+                    and area_id= #{areaId,jdbcType=VARCHAR}
+                </if>
+                <if test="streetId != null and streetId != ''">
+                    and street_id= #{streetId,jdbcType=VARCHAR}
+                </if>
+                <if test="esId != null and esId != ''">
+                    and t1.es_id = #{esId,jdbcType=VARCHAR}
+                </if>
+                <if test="industryId != null and industryId != ''">
+                    and t1.industry_id = #{industryId,jdbcType=VARCHAR}
+                </if>
+                <if test="name != null and name != '' ">
+                    and t1.company_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="phone != null and phone != '' ">
+                    and t1.mobile like CONCAT('%',#{phone,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="email != null and email != '' ">
+                    and t1.email like CONCAT('%',#{email,jdbcType=VARCHAR},'%')
+                </if>
+                <if test="peopleName != null and peopleName != '' ">
+                    and t1.name like CONCAT('%',#{peopleName,jdbcType=VARCHAR},'%')
+                </if>
+                order by t1.user_id desc
+            </otherwise>
+        </choose>
+    </select>
+
+
+</mapper>

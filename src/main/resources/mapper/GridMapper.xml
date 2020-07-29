@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.GridMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Grid">
+        <!--@mbg.generated-->
+        <!--@Table sys_grid-->
+        <id column="grid_id" jdbcType="INTEGER" property="gridId"/>
+        <result column="street_id" jdbcType="INTEGER" property="streetId"/>
+        <result column="grid_name" jdbcType="VARCHAR" property="gridName"/>
+        <result column="chat_id" jdbcType="VARCHAR" property="chatId"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        grid_id, street_id, grid_name, chat_id, flag
+    </sql>
+
+    <resultMap id="findGridByStreetId" type="com.ciyun.renshe.entity.po.GridPO">
+        <id column="grid_id" jdbcType="INTEGER" property="id"/>
+        <result column="grid_id" jdbcType="INTEGER" property="gridId"/>
+        <result column="grid_name" jdbcType="VARCHAR" property="name"/>
+        <result column="chat_id" jdbcType="VARCHAR" property="chatId"/>
+    </resultMap>
+    <select id="findGridByStreetId" resultMap="findGridByStreetId">
+        select *
+        from sys_grid
+        where street_id = #{streetId,jdbcType=INTEGER}
+          and flag = 1
+    </select>
+
+
+    <resultMap id="findGridUserByStreetIdMap" type="com.ciyun.renshe.entity.po.GridInUserPO">
+        <id column="grid_id" jdbcType="INTEGER" property="id"/>
+        <result column="grid_id" jdbcType="INTEGER" property="gridId"/>
+        <result column="grid_name" jdbcType="VARCHAR" property="name"/>
+        <result column="chat_id" jdbcType="VARCHAR" property="chatId"/>
+        <collection property="children"
+                    column="chat_id"
+                    select="com.ciyun.renshe.mapper.UserMapper.findUserByChatId"
+                    ofType="com.ciyun.renshe.entity.po.UserPO"/>
+    </resultMap>
+    <select id="findGridUserByStreetId" resultMap="findGridUserByStreetIdMap">
+        select grid_id, grid_name, chat_id
+        from sys_grid
+        where street_id = #{streetId,jdbcType=INTEGER}
+          and flag = 1
+    </select>
+    <select id="findGridUserById" resultMap="findGridUserByStreetIdMap">
+        select grid_id, grid_name, chat_id
+        from sys_grid
+        <where>
+            <if test="grids != null and grids.size() != 0">
+                <foreach collection="grids" open=" grid_id IN (" item="grid" separator="," close=")">
+                    #{grid,jdbcType=INTEGER}
+                </foreach>
+            </if>
+            and flag = 1
+        </where>
+    </select>
+
+    <select id="findGridByStreetIds" resultMap="findGridByStreetId">
+        select *
+        from sys_grid
+        where street_id in
+        <foreach collection="streetIds" item="streetId" open="(" separator="," close=")">
+            #{streetId,jdbcType=INTEGER}
+        </foreach>
+        and flag = 1
+    </select>
+
+
+    <resultMap id="findGridByGridIdsMap" type="com.ciyun.renshe.entity.po.GridPO">
+        <id column="grid_id" jdbcType="INTEGER" property="id"/>
+        <result column="grid_id" jdbcType="INTEGER" property="gridId"/>
+        <result column="grid_name" jdbcType="VARCHAR" property="name"/>
+        <result column="chat_id" jdbcType="VARCHAR" property="chatId"/>
+    </resultMap>
+    <select id="findGridByGridIds" resultMap="findGridByGridIdsMap">
+        select *
+        from sys_grid
+        <where>
+            <if test="list != null and list.size() != 0">
+                <foreach collection="list" open="grid_id IN (" item="gridId" separator="," close=")">
+                    #{gridId,jdbcType=INTEGER}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

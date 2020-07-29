@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.ChatMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Chat">
+    <!--@mbg.generated-->
+    <!--@Table dd_chat-->
+    <id column="chat_id" jdbcType="VARCHAR" property="chatId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="owner" jdbcType="VARCHAR" property="owner" />
+    <result column="user_id_list" jdbcType="VARCHAR" property="userIdList" />
+    <result column="show_history_type" jdbcType="INTEGER" property="showHistoryType" />
+    <result column="search_able" jdbcType="INTEGER" property="searchAble" />
+    <result column="validation_type" jdbcType="INTEGER" property="validationType" />
+    <result column="mention_all_authority" jdbcType="INTEGER" property="mentionAllAuthority" />
+    <result column="chat_banned_type" jdbcType="INTEGER" property="chatBannedType" />
+    <result column="management_type" jdbcType="INTEGER" property="managementType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="manager_user" jdbcType="VARCHAR" property="managerUser" />
+    <result column="position" jdbcType="VARCHAR" property="position" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="es_id" jdbcType="INTEGER" property="esId" />
+    <result column="industry_id" jdbcType="INTEGER" property="industryId" />
+    <result column="area_id" jdbcType="INTEGER" property="areaId" />
+    <result column="dept_id" jdbcType="INTEGER" property="deptId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    chat_id, `name`, `owner`, user_id_list, show_history_type, search_able, validation_type, 
+    mention_all_authority, chat_banned_type, management_type, create_time, flag, manager_user, 
+    `position`, `type`, es_id, industry_id, area_id, dept_id
+  </sql>
+
+
+    <select id="findAllChat" resultType="map">
+        SELECT grid_id,
+        grid_name,
+        g.chat_id,
+        IFNULL(c.gridCount ,0) gridCount
+        from (SELECT * FROM sys_grid WHERE flag = 1
+
+        <if test="streetIds != null and streetIds.size() != 0">
+            <foreach close=")" collection="streetIds" item="streetId" open="and street_id IN (" separator=",">
+                #{streetId,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        ) g
+        LEFT JOIN (SELECT ifnull(COUNT(*),1) gridCount, chat_id FROM dd_user_chat GROUP BY chat_id) c
+        ON c.chat_id = g.chat_id
+    </select>
+    <select id="findAllChat2DD" resultType="java.util.Map">
+        SELECT chat_id,name
+        FROM dd_chat
+        WHERE 1=1
+        <if test="type != null">
+            and type = #{type,jdbcType=INTEGER}
+        </if>
+        and chat_id IN (SELECT chat_id FROM dd_user_chat WHERE user_id = #{userId,jdbcType=INTEGER} GROUP BY chat_id)
+        AND flag = 1
+    </select>
+
+    <select id="findChatByESId" resultMap="BaseResultMap">
+        select *
+        from dd_chat
+        where flag = 1 and es_id = #{esId,jdbcType=INTEGER}
+           or industry_id = #{esId,jdbcType=INTEGER}
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.OnLineTimeMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.OnLineTime">
+        <!--@mbg.generated-->
+        <!--@Table sys_on_line_time-->
+        <id column="on_line_id" jdbcType="INTEGER" property="onLineId"/>
+        <result column="on_line_time" jdbcType="TIMESTAMP" property="onLineTime"/>
+        <result column="off_line_time" jdbcType="TIMESTAMP" property="offLineTime"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="on_line_current_date" jdbcType="VARCHAR" property="onLineCurrentDate"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        on_line_id, on_line_time, off_line_time, user_id, on_line_current_date
+    </sql>
+
+    <select id="findOnLineTimeByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from sys_on_line_time
+        where user_id = #{userId,jdbcType=INTEGER}
+        and on_line_current_date =#{currentDate,jdbcType=VARCHAR} and off_line_time is null
+        order by on_line_id desc limit 1;
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.OnLineCountMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.OnLineCount">
+        <!--@mbg.generated-->
+        <!--@Table sys_on_line_count-->
+        <id column="on_line_count_id" jdbcType="INTEGER" property="onLineCountId"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="count_current_date" jdbcType="DATE" property="countCurrentDate"/>
+        <result column="count_time" jdbcType="VARCHAR" property="countTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        on_line_count_id, user_id, count_current_date, count_time
+    </sql>
+
+    <select id="chatManagerCount" resultType="java.util.Map">
+        SELECT SUM(lc.count_time) timeCount,
+               u.name
+        FROM sys_on_line_count lc
+                 left join dd_user u on lc.user_id = u.user_id
+        GROUP BY lc.user_id
+        ORDER BY timeCount DESC
+        LIMIT 10
+    </select>
+</mapper>

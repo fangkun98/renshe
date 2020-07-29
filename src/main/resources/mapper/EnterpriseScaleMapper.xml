@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.EnterpriseScaleMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.EnterpriseScale">
+    <!--@mbg.generated-->
+    <!--@Table sys_enterprise_scale-->
+    <id column="es_id" jdbcType="INTEGER" property="esId" />
+    <result column="scale_name" jdbcType="VARCHAR" property="scaleName" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="create_user_id" jdbcType="INTEGER" property="createUserId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    es_id, scale_name, flag, `state`, create_user_id
+  </sql>
+
+
+
+  <!---->
+
+
+  <resultMap id="findAllEnterpriseScaleListMap" type="com.ciyun.renshe.entity.po.EnterpriseScalePO">
+    <id column="es_id" jdbcType="INTEGER" property="esId" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="create_user_id" jdbcType="INTEGER" property="createUserId" />
+    <collection column="es_id" ofType="com.ciyun.renshe.entity.Chat" property="chatList" select="com.ciyun.renshe.mapper.ChatMapper.findChatByESId" />
+  </resultMap>
+    <select id="findAllEnterpriseScaleList" resultMap="findAllEnterpriseScaleListMap">
+        select *
+        from sys_enterprise_scale
+        where state = #{state,jdbcType=INTEGER}
+          and flag = 1
+    </select>
+</mapper>

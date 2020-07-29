@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.AreaPermissionsMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.AreaPermissions">
+        <!--@mbg.generated-->
+        <!--@Table sys_area_permissions-->
+        <id column="permission_id" jdbcType="INTEGER" property="permissionId"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="street_id" jdbcType="INTEGER" property="streetId"/>
+        <result column="admin_type" jdbcType="INTEGER" property="adminType"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="grid_id" jdbcType="INTEGER" property="gridId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        permission_id, area_id, street_id, admin_type, user_id, grid_id
+    </sql>
+
+
+
+
+    <resultMap id="getAreaAdminMap" type="com.ciyun.renshe.entity.po.AreaAdminPO">
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <association property="user" column="user_id" javaType="com.ciyun.renshe.entity.po.UserPO"
+                     select="com.ciyun.renshe.mapper.UserMapper.findUserByUserId"/>
+    </resultMap>
+    <select id="getAreaAdmin" resultMap="getAreaAdminMap">
+        select user_id from sys_area_permissions
+        <where>
+
+            <if test="areaId != null">
+                area_id = #{areaId,jdbcType=INTEGER}
+            </if>
+            <if test="streetId != null">
+                and street_id = #{streetId,jdbcType=INTEGER}
+            </if>
+            <if test="gridId != null">
+                and grid_id = #{gridId,jdbcType=INTEGER}
+            </if>
+            and admin_type = #{adminType,jdbcType=INTEGER}
+        </where>
+
+    </select>
+
+
+    <!--根据用户名和用户的角色查询出对应所管理的区域-->
+    <select id="findAreaByUserIdAndUserRoleId" resultMap="BaseResultMap">
+        select * from sys_area_permissions
+        <where>
+            user_id = #{userId,jdbcType=INTEGER}
+            and admin_type = #{roleId,jdbcType=INTEGER}
+        </where>
+
+    </select>
+</mapper>

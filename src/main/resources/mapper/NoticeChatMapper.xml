@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.NoticeChatMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.NoticeChat">
+        <!--@mbg.generated-->
+        <!--@Table sys_notice_chat-->
+        <result column="notice_id" jdbcType="INTEGER" property="noticeId"/>
+        <result column="chat_id" jdbcType="VARCHAR" property="chatId"/>
+        <result column="dd_user_id" jdbcType="VARCHAR" property="ddUserId"/>
+        <result column="msg_id" jdbcType="VARCHAR" property="msgId"/>
+        <result column="is_all_read" jdbcType="INTEGER" property="isAllRead"/>
+        <result column="read_user_list" jdbcType="VARCHAR" property="readUserList"/>
+        <result column="read_num" jdbcType="INTEGER" property="readNum"/>
+        <result column="unread_num" jdbcType="INTEGER" property="unreadNum"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        notice_id, chat_id, dd_user_id, msg_id, is_all_read, read_user_list, read_num, unread_num
+    </sql>
+
+    <select id="findNoticeChatByNoticeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_notice_chat
+        where notice_id = #{noticeId,jdbcType=INTEGER} and chat_id is not null;
+    </select>
+
+    <select id="noticeCount" resultType="java.util.Map">
+        SELECT (SUM(nc.read_num) / (SUM(nc.read_num) + SUM(nc.unread_num))) noticeNum,
+               c.`name`
+        FROM sys_notice_chat nc
+                 LEFT JOIN dd_chat c
+                 on c.chat_id = nc.chat_id
+        WHERE nc.read_num IS NOT NULL
+        AND nc.unread_num IS NOT NULL
+        GROUP BY nc.chat_id
+        ORDER BY noticeNum DESC
+        LIMIT 30
+    </select>
+
+    <select id="adminLineCount" resultType="java.util.Map">
+        SELECT SUM(c.count_time) countTime,
+               u.`name`
+        FROM sys_on_line_count c
+                 LEFT JOIN (SELECT user_id, `name` FROM dd_user WHERE flag = 1) u ON u.user_id = c.user_id
+        GROUP BY c.user_id
+        ORDER BY countTime DESC
+        LIMIT 30
+    </select>
+
+
+</mapper>

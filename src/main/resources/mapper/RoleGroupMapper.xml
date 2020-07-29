@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.RoleGroupMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.RoleGroup">
+    <!--@mbg.generated-->
+    <!--@Table dd_role_group-->
+    <id column="group_id" jdbcType="INTEGER" property="groupId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    group_id, create_time, flag
+  </sql>
+</mapper>

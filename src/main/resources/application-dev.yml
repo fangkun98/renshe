@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:mysql://localhost:3306/weeklymanagement?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://121.40.232.47:3306/renshe?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    #password: root
+    password: Yidangwu0532
+#    日志隔离级别
+logging:
+  level:
+    com.ciyun.renshe.mapper: debug
+localUpload:
+  filePath: c://opt/renshe/file/
+  #filePath: /opt/renshe/file/
+  addResourceLocations: file:C://opt/renshe/file/
+project:
+  newsUrl: http://192.168.0.241:10011/renshe
+  singleUrl: https://v.xiumi.us/board/v5/4Fijh/215518763
+  question: http://192.168.0.241:10011/renshe/question.html
+#renshe:
+  #appid: Pii0yDmFHE
+  #key: kZfWVgghsteA1Xbh
+  #url: http://221.215.38.123:7001/qdaio-gett/case/saveApply
+  #accessToken: VkDsSAq26BWpfACwpOeDphDEI0A8gItu
+renshe:
+  appid: oxxXqVgm7d
+  key: 2VDd9UMoIiBRrwTR
+  url: http://12333.qingdao.gov.cn/qdaio-gett/case/saveApply
+  accessToken: 3EHpLF32fBDFAqi11R3KPeGWUFUG3KiI
+dingding:
+  agentId: 533700596
+  appKey: dinggpyojv9khounrono
+  appSecret: hbTxEBZZGRfV6brSQS1LUrS746iFg6jiHkl-Xvb24vCoiRGs6VD0IH1nKK9xsQGY
+  corpId: ding099e5a9f890a7a5a
+  deptId: 374797302
+

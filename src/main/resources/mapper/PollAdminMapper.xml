@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.PollAdminMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.PollAdmin">
+    <!--@mbg.generated-->
+    <!--@Table sys_poll_admin-->
+    <id column="poll_admin_id" jdbcType="INTEGER" property="pollAdminId" />
+    <result column="poll_count" jdbcType="INTEGER" property="pollCount" />
+    <result column="next_num" jdbcType="INTEGER" property="nextNum" />
+    <result column="chat_name" jdbcType="VARCHAR" property="chatName" />
+    <result column="chat_id" jdbcType="VARCHAR" property="chatId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    poll_admin_id, poll_count, next_num, chat_name, chat_id
+  </sql>
+</mapper>

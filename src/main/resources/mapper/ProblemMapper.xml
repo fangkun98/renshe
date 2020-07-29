@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.ProblemMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.Problem">
+        <!--@mbg.generated-->
+        <!--@Table dd_problem-->
+        <id column="problem_id" jdbcType="INTEGER" property="problemId"/>
+        <result column="problem_user_id" jdbcType="INTEGER" property="problemUserId"/>
+        <result column="is_solve" jdbcType="INTEGER" property="isSolve"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="problem_content" jdbcType="LONGVARCHAR" property="problemContent"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="street_id" jdbcType="INTEGER" property="streetId"/>
+        <result column="grid_id" jdbcType="INTEGER" property="gridId"/>
+        <result column="is_look" jdbcType="INTEGER" property="isLook"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        problem_id, problem_user_id, is_solve, create_time, problem_content, flag, area_id,
+        street_id, grid_id, is_look
+    </sql>
+
+
+    <resultMap id="ProblemMap" type="com.ciyun.renshe.entity.Problem">
+        <id column="problem_id" jdbcType="INTEGER" property="problemId"/>
+        <result column="problem_user_id" jdbcType="INTEGER" property="problemUserId"/>
+        <result column="is_solve" jdbcType="INTEGER" property="isSolve"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="problem_content" jdbcType="LONGVARCHAR" property="problemContent"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+
+        <collection column="problem_id" fetchType="lazy" ofType="com.ciyun.renshe.entity.Solve" property="solveList"
+                    select="com.ciyun.renshe.mapper.SolveMapper.findSolvesByProblemId">
+        </collection>
+    </resultMap>
+
+    <select id="findProblems" parameterType="integer" resultMap="ProblemMap">
+        select * from dd_problem where flag = 1
+        <if test="isSolve != null ">
+            and is_solve = #{isSolve,jdbcType=INTEGER}
+        </if>
+        order by problem_id desc
+    </select>
+
+    <select id="findCount" resultType="java.lang.Integer">
+        select count(*) from dd_problem where flag = 1
+        <if test="type != null and type != 2">
+            and is_solve = #{type,jdbcType=INTEGER}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            and area_id = #{areaId,jdbcType=VARCHAR}
+        </if>
+        <if test="streetId != null and streetId != ''">
+            and street_id = #{streetId,jdbcType=VARCHAR}
+            and street_id = #{streetId,jdbcType=VARCHAR}
+        </if>
+        <if test="gridId != null and gridId != ''">
+            and grid_id = #{gridId,jdbcType=VARCHAR}
+        </if>
+        order by problem_id desc
+    </select>
+    <select id="problemCount" resultType="java.util.Map">
+        SELECT
+            n.`name`,
+            SUM( n.problemCount ) problemSum
+        FROM
+            (
+                SELECT
+                    COUNT(*) problemCount,
+                    u.company_name 'name',
+                    p.problem_id
+                FROM
+                    dd_problem p
+                        LEFT JOIN dd_user u ON u.user_id = p.problem_user_id
+                GROUP BY
+                    p.problem_user_id,
+                    u.company_name
+                ORDER BY
+                    problemCount DESC
+                LIMIT 30
+            ) n
+        WHERE
+            n.`name` IS NOT NULL
+        GROUP BY
+            n.`name`
+    </select>
+</mapper>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,height=device-height,inital-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <title>详情</title>
+    <script src="https://cdn.bootcss.com/vue/2.6.11/vue.min.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.2/axios.min.js"></script>
+</head>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #f8f8f8;
+    }
+
+    #app {
+        padding: 0 15px;
+    }
+
+    .headerBox {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        font-size: 14px;
+        color: #A0A0A0;
+        margin-top: -10px;
+        /* padding: 0 15px; */
+    }
+
+    .headetetx {
+        width: calc(100% - 30px);
+        /* padding: 0 15px; */
+    }
+</style>
+<body>
+<div id="app">
+    <div class="headetetx">
+        <h2>{{title}}</h2>
+    </div>
+    <div class="headerBox">{{createTime}}</div>
+    <div v-html="htmlContent"></div>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            //httpUrl: 'http://192.168.0.241:10011/renshe',
+            httpUrl:'https://sheqitong.1dang5.com/renshe',
+            htmlContent: "",
+            title: '',
+            createTime: '',
+        },
+        beforeMount() {
+
+        },
+        mounted() {
+            // console.log("挂载完成生命周期");
+            this.getData()
+        },
+        methods: {
+            // 获取url参数
+            getUrlParam(name) {
+                //构造一个含有目标参数的正则表达式对象
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                //匹配目标参数
+                var r = window.location.search.substr(1).match(reg);
+                //返回参数
+                if (r != null) {
+                    return unescape(r[2]);
+                } else {
+                    return null;
+                }
+            },
+            // 请求富文本数据
+            getData() {
+                var that = this
+                axios.get(that.httpUrl + '/notice/findNoticeById?noticeId=' + that.getUrlParam('id'))
+                    .then(function (response) {
+                        // handle success
+                        if (response.data.code == 0) {
+                            console.log(response);
+                            // response.data.data.content.replace(/%/g, '%25');
+                            var ins = decodeURIComponent(response.data.data.content.replace(/%/g, '%25'))
+                            that.title = JSON.parse(response.data.data.msgContent).actionCard.title
+                            that.createTime = response.data.data.createTime
+                            that.htmlContent = ins.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ')
+                            // that.readeNew()
+                        } else {
+                            alert(response.data.message)
+                        }
+                    })
+                    .catch(function (error) {
+                        alert(error)
+                    })
+            },
+            readeNew() {
+                axios.get(this.httpUrl + '/notice/readAndLike')
+                    .then(function (response) {
+
+                    })
+                    .catch(function (error) {
+                        alert(error)
+                    })
+
+            },
+
+        },
+    })
+</script>
+</body>
+</html>

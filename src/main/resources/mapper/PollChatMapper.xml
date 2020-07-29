@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.PollChatMapper">
+  <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.PollChat">
+    <!--@mbg.generated-->
+    <!--@Table sys_poll_chat-->
+    <id column="polling_id" jdbcType="INTEGER" property="pollingId" />
+    <result column="grid_count" jdbcType="INTEGER" property="gridCount" />
+    <result column="previous_num" jdbcType="INTEGER" property="previousNum" />
+    <result column="street_id" jdbcType="INTEGER" property="streetId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    polling_id, grid_count, previous_num, street_id
+  </sql>
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ciyun.renshe.mapper.ChatAtRecordMapper">
+    <resultMap id="BaseResultMap" type="com.ciyun.renshe.entity.ChatAtRecord">
+        <!--@mbg.generated-->
+        <!--@Table dd_chat_at_record-->
+        <id column="record_id" jdbcType="INTEGER" property="recordId"/>
+        <result column="at_id" jdbcType="INTEGER" property="atId"/>
+        <result column="message_content" jdbcType="LONGVARCHAR" property="messageContent"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="flag" jdbcType="INTEGER" property="flag"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="question_or_answer" jdbcType="INTEGER" property="questionOrAnswer"/>
+        <result column="chat_name" jdbcType="VARCHAR" property="chatName"/>
+        <result column="is_read" jdbcType="INTEGER" property="isRead"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        record_id, at_id, message_content, user_id, flag, create_time, question_or_answer,
+        chat_name, is_read
+    </sql>
+
+
+    <select id="findChatRecordByChatName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dd_chat_at_record
+        where at_id = #{atId,jdbcType=INTEGER}
+        and flag = 1
+        <!--and create_time &gt; (SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE) + INTERVAL 1 DAY)))-->
+        <!--order by record_id desc-->
+    </select>
+
+    <select id="chatManagerCount" resultType="java.util.Map">
+        SELECT IFNULL(CAST(
+                              a.i / b.j AS DECIMAL(18, 2)), 0.00)
+                   recodeCount,
+               u.`name`
+        FROM (SELECT COUNT(*) i, receiving_user_id FROM dd_chat_at WHERE msg_flag = 2 GROUP BY receiving_user_id) a
+                 LEFT JOIN (SELECT COUNT(*) j, receiving_user_id FROM dd_chat_at GROUP BY receiving_user_id) b
+                           ON a.receiving_user_id = b.receiving_user_id
+                 LEFT JOIN dd_user u ON u.user_id = a.receiving_user_id
+        ORDER BY recodeCount DESC
+        LIMIT 10
+    </select>
+
+    <select id="maxReplayChatOwner" resultType="java.util.Map">
+        SELECT a.conversation_title roomName,
+               u.`name`             ownerName,
+               a.replyTotal,
+               IFNULL(CAST(a.replyTotal / b.replyTotal AS DECIMAL(18,2)),0.00) replyRate
+        FROM (
+                 SELECT COUNT(*) replyTotal,
+                        conversation_title,
+                        receiving_user_id
+                 FROM dd_chat_at
+                 WHERE msg_flag = 2
+                 GROUP BY conversation_title,
+                          receiving_user_id
+            ) a
+                 LEFT JOIN (
+            SELECT COUNT(*) replyTotal,
+                   conversation_title,
+                   receiving_user_id
+            FROM dd_chat_at
+            GROUP BY conversation_title,
+                     receiving_user_id
+                     ) b ON
+                a.receiving_user_id = b.receiving_user_id
+                AND a.conversation_title = b.conversation_title
+                 INNER JOIN dd_user u ON
+            u.user_id = a.receiving_user_id
+                 INNER JOIN dd_chat c ON
+            c.owner = u.dd_user_id
+        GROUP BY a.conversation_title
+        ORDER BY a.replyTotal DESC
+        LIMIT 30
+    </select>
+</mapper>
